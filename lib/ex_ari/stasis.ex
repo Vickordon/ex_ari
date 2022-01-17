@@ -99,6 +99,7 @@ defmodule ARI.Stasis do
 
     @derive {Jason.Encoder, only: [:connected, :url, :status, :type]}
     defstruct [
+      :type,
       :connected,
       :url,
       :status,
