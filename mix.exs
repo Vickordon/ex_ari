@@ -5,7 +5,7 @@ defmodule ExAri.MixProject do
     [
       app: :ex_ari,
       version: "0.1.2",
-      elixir: "~> 1.7",
+      elixir: "~> 1.14",
       package: package(),
       description: description(),
       name: "ARI",
@@ -29,8 +29,8 @@ defmodule ExAri.MixProject do
     ]
   end
 
-  defp elixirc_paths(:test), do: ['lib', 'test/support']
-  defp elixirc_paths(_), do: ['lib']
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   defp default_env do
     [
@@ -61,8 +61,12 @@ defmodule ExAri.MixProject do
       {:mint, "~> 1.0"},
       {:plug, "~> 1.8", only: [:dev, :test]},
       {:plug_cowboy, "~> 2.1", only: [:dev, :test]},
+      {:bypass, "~> 2.1", only: :test},
       {:uuid, "~> 1.1"},
-      {:websockex, "~> 0.4"}
+      # ~> 0.4 does not compile under modern Elixir (deprecated charlist
+      # syntax in its own mix.exs); hex.pm's package was taken over by a
+      # new maintainer and republished as 0.5.x.
+      {:websockex, "~> 0.5"}
     ]
   end
 

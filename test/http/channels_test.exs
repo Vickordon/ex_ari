@@ -39,8 +39,8 @@ defmodule ARI.HTTP.ChannelsTest do
 
     assert resp.json.path == "channels" &&
              resp.json.id == ["1234567"] &&
-             resp.json.body_params.endpoint == "PJSIP/+15555551010@test_endpoint" &&
-             resp.json.body_params.app == "test_app"
+             resp.json.query_params.endpoint == "PJSIP/+15555551010@test_endpoint" &&
+             resp.json.query_params.app == "test_app"
   end
 
   test "originate/1" do
@@ -51,8 +51,22 @@ defmodule ARI.HTTP.ChannelsTest do
       })
 
     assert resp.json.path == "channels" &&
-             resp.json.body_params.endpoint == "PJSIP/+15555551010@test_endpoint" &&
-             resp.json.body_params.app == "test_app"
+             resp.json.query_params.endpoint == "PJSIP/+15555551010@test_endpoint" &&
+             resp.json.query_params.app == "test_app"
+  end
+
+  test "originate/1 sends :variables as the JSON body, not the query string" do
+    resp =
+      Channels.originate(%{
+        endpoint: "PJSIP/+15555551010@test_endpoint",
+        app: "test_app",
+        variables: %{foo: "bar"}
+      })
+
+    assert resp.json.path == "channels" &&
+             resp.json.query_params.endpoint == "PJSIP/+15555551010@test_endpoint" &&
+             not Map.has_key?(resp.json.query_params, :variables) &&
+             resp.json.body_params.variables.foo == "bar"
   end
 
   test "create" do

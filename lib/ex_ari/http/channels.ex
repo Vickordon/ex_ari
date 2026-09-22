@@ -178,15 +178,29 @@ defmodule ARI.HTTP.Channels do
   end
 
   def handle_call({:originate, payload}, from, state) do
-    {:noreply, request("POST", "", from, state, payload)}
+    {query, body} = split_query_and_body(payload)
+    {:noreply, request("POST", "?#{encode_params(query)}", from, state, body)}
   end
 
   def handle_call({:originate, id, payload}, from, state) do
-    {:noreply, request("POST", "/#{id}", from, state, payload)}
+    {query, body} = split_query_and_body(payload)
+    {:noreply, request("POST", "/#{id}?#{encode_params(query)}", from, state, body)}
   end
 
   def handle_call({:create, payload}, from, state) do
-    {:noreply, request("POST", "/create", from, state, Jason.encode!(payload))}
+    {query, body} = split_query_and_body(payload)
+    {:noreply, request("POST", "/create?#{encode_params(query)}", from, state, body)}
+  end
+
+  # ARI's originate/create endpoints take endpoint/app/appArgs/callerId/etc.
+  # as query parameters — only `variables` is a JSON body field. Sending
+  # them all as a JSON body (as this library originally did) means
+  # Asterisk silently ignores them.
+  defp split_query_and_body(payload) do
+    case Map.pop(payload, :variables) do
+      {nil, query} -> {query, nil}
+      {variables, query} -> {query, Jason.encode!(%{variables: variables})}
+    end
   end
 
   def handle_call({:hangup, id}, from, state) do
